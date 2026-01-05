@@ -1,0 +1,11 @@
+# Ignore all text files
+*.txt
+
+# Ignore all PDF files
+*.pdf
+
+# Ignore all XLSX files
+*.xlsx
+
+#Ignore all CSV files
+*.csv
