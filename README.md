@@ -3,7 +3,7 @@
 
 ## 1. Business Need
 
-Need a reliable way to detect when a motor carrier or freight broker is no longer legally allowed to conduct commercial transportation business in the United States. This happens when a company’s operating authority is revoked by the Federal Motor Carrier Safety Administration (FMCSA).
+The business need is to build a reliable way to detect when a motor carrier or freight broker is no longer legally allowed to conduct commercial transportation business in the United States. This happens when a company’s operating authority is revoked by the Federal Motor Carrier Safety Administration (FMCSA).
 
 **Goal:**  
 Create an automated process (scheduled monthly) to identify new authority revocations and surface them to relevant teams via a nicely formatted Excel spreadsheet.
@@ -19,15 +19,15 @@ Build an automated monthly report that identifies:
 
 whose FMCSA operating authority has been revoked since the previous reporting period.
 
+**In simple terms:**  
+The process pulls data from official DOT/FMCSA APIs to identify carriers and brokers that had their authority revoked, writes that information to a nicely formatted Excel spreadsheet, and emails it to the business for review.
+
 ## 3. Data Sources
 
-### Primary source
-
-Use public transportation datasets available via:
-
 **Transportation.gov and FMCSA APIs**
-- https://data.transportation.gov/ (FMCSA Revocations History)
-- https://mobile.fmcsa.dot.gov/QCDevsite/ (FMCSA QCMobile API – Carrier Info)
+- https://data.transportation.gov/ (Official Dept of Transportation APIs)
+  -  https://dev.socrata.com/foundry/data.transportation.gov/sa6p-acbp (FMCSA Revocations All History from DOT)
+- https://mobile.fmcsa.dot.gov/QCDevsite/ (FMCSA QCMobile API – Carrier Info from FMCSA)
 
 Specifically, FMCSA-related datasets that expose:
 

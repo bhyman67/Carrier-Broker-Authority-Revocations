@@ -1,3 +1,17 @@
+
+# #######################################################################################
+
+# Data preview with column subset for FMCSA Revocations History API (printed to terminal)
+
+# At this point, based off what I was seeing (and didn't see :)) in the socrata API  
+# exploerer, I thought I needed to filter on the order1_serve_date field to get data for 
+# the previous month. I didn't realize that I needed to look for (and use) the 
+# effective_date until I had the Q&A with Chris. 
+
+# https://dev.socrata.com/foundry/data.transportation.gov/sa6p-acbp
+
+# #######################################################################################
+
 # Read app token and API IDs from files
 $appToken = Get-Content -Path "$PSScriptRoot\app_token.txt" -Raw | ForEach-Object { $_.Trim() }
 $apiIds = Get-Content -Path "$PSScriptRoot\fmcsa_api_ids.json" -Raw | ConvertFrom-Json
