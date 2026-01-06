@@ -9,3 +9,6 @@
 
 #Ignore all CSV files
 *.csv
+
+# Ignore sodapy comparison script
+**(sodapy).py

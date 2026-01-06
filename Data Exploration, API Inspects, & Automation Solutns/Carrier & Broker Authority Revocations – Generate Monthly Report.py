@@ -2,11 +2,11 @@
 
 # make sure to install these packages before running:
 # pip install pandas
-# pip install sodapy
+# pip install requests
 # pip install openpyxl
 
 import pandas as pd
-from sodapy import Socrata
+import requests
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import os
@@ -29,35 +29,57 @@ end_date = last_day_previous_month.strftime('%m/%d/%Y')
 
 print(f"Fetching revocation data for: {start_date} to {end_date}")
 
-# Create authenticated Socrata client
-client = Socrata("data.transportation.gov", app_token)
+# API configuration
+base_url = "https://data.transportation.gov/resource/sa6p-acbp.json"
+headers = {
+    "X-App-Token": app_token
+}
 
-# Define query parameters
-select_clause = "dot_number,docket_number,order2_type_desc,type_license,order1_serve_date,order2_effective_date"
-where_clause = f"order2_effective_date >= '{start_date}' AND order2_effective_date <= '{end_date}'"
+# Build query parameters
+select_fields = "dot_number,docket_number,order2_type_desc,type_license,order1_serve_date,order2_effective_date"
+mm = first_day_previous_month.strftime("%m")
+yyyy = first_day_previous_month.strftime("%Y")
+where_condition = f"order2_effective_date LIKE '{mm}/%/{yyyy}'"
+
+print(f"WHERE clause: {where_condition}")
 
 # Pagination parameters
 limit = 1000
 offset = 0
 all_results = []
+max_pages = 1000000  # TESTING: Limit to 3 pages to avoid API limits
+page_count = 0
 
 # Fetch data with pagination
 print("Fetching data from API...")
+print(f"(Testing mode: limited to {max_pages} pages)")
 while True:
     try:
-        results = client.get(
-            "sa6p-acbp",
-            select=select_clause,
-            where=where_clause,
-            limit=limit,
-            offset=offset
-        )
+        # Build query parameters
+        params = {
+            "$select": select_fields,
+            "$where": where_condition,
+            "$limit": limit,
+            "$offset": offset
+        }
+        
+        # Make API request
+        response = requests.get(base_url, headers=headers, params=params)
+        response.raise_for_status()
+        
+        results = response.json()
         
         if not results:
             break
         
         all_results.extend(results)
-        print(f"  Retrieved {len(results)} records (total: {len(all_results)})")
+        page_count += 1
+        print(f"  Retrieved {len(results)} records (total: {len(all_results)}, page {page_count}/{max_pages})")
+        
+        # TESTING: Stop after max_pages
+        if page_count >= max_pages:
+            print(f"  Reached testing limit of {max_pages} pages")
+            break
         
         # If we got fewer results than the limit, we've reached the end
         if len(results) < limit:
@@ -67,9 +89,6 @@ while True:
     except Exception as e:
         print(f"Error fetching data: {e}")
         break
-
-# Close the client
-client.close()
 
 print(f"\nTotal records retrieved: {len(all_results)}")
 
