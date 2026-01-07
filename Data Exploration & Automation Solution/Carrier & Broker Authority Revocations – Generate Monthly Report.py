@@ -106,8 +106,19 @@ if all_results:
         df['order1_serve_date'] = pd.to_datetime(df['order1_serve_date'], errors='coerce')
         df['order1_serve_date'] = df['order1_serve_date'].dt.strftime('%m/%d/%Y')
     
+    # Rename columns to business-friendly names
+    column_mapping = {
+        'dot_number': 'USDOT Number',
+        'docket_number': 'Docket Number',
+        'order2_type_desc': 'Revocation Type',
+        'type_license': 'Operating Authority Registration Type',
+        'order1_serve_date': 'Serve Date',
+        'order2_effective_date': 'Effective Date'
+    }
+    df = df.rename(columns=column_mapping)
+    
     # Write to Excel with formatting
-    output_file = os.path.join(os.path.dirname(script_dir), 'Generated Report.xlsx')
+    output_file = os.path.join(os.path.dirname(script_dir), 'Carrier & Broker Authority Revocations–Monthly Report.xlsx')
     
     print(f"\nWriting data to Excel: {output_file}")
     

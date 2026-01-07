@@ -1,5 +1,6 @@
 
-
+# was wondering if there were duplicate business entities among the records in the FMCSA Revocations History data
+# multiple revocations and such. 
 
 # Read app token and API IDs from files
 $appToken = Get-Content -Path "$PSScriptRoot\app_token.txt" -Raw | ForEach-Object { $_.Trim() }

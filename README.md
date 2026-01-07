@@ -8,37 +8,16 @@ The business need is to build a reliable way to detect when a motor carrier or f
 **Goal:**  
 Create an automated process (scheduled monthly) to identify new authority revocations and surface them to relevant teams via a nicely formatted Excel spreadsheet.
 
-## 2. Proposed Automated Solution
+## 2. Business Process Understanding
 
-### High-level approach
+### Current State:
+A 3-person Risk and Compliance team manually checks FMCSA authority status for 5,000+ companies. Checks are reactive—typically performed only when concerns arise. This manual lookup process is time-consuming and doesn't scale.
+  
+The team needs a faster, more proactive way to identify revoked authorities rather than discovering them after issues occur.
 
-Build an automated monthly report that identifies:
+### Key Definitions & Acronyms
 
-- Motor carriers
-- Freight brokers
-
-whose FMCSA operating authority has been revoked since the previous reporting period.
-
-**In simple terms:**  
-The process pulls data from official DOT/FMCSA APIs to identify carriers and brokers that had their authority revoked, writes that information to a nicely formatted Excel spreadsheet, and emails it to the business for review.
-
-## 3. Data Sources
-
-**Transportation.gov and FMCSA APIs**
-- https://data.transportation.gov/ (Official Dept of Transportation APIs)
-  -  https://dev.socrata.com/foundry/data.transportation.gov/sa6p-acbp (FMCSA Revocations All History from DOT)
-- https://mobile.fmcsa.dot.gov/QCDevsite/ (FMCSA QCMobile API – Carrier Info from FMCSA)
-
-Specifically, FMCSA-related datasets that expose:
-
-- Operating authority status
-- Revocation dates
-- Entity identifiers (USDOT number, MC/Docket number)
-- Company name for given USDOT number
-
-## 4. Key Definitions & Acronyms
-
-Understanding these is important for context and Domain Understanding.
+Understanding these is important for context and domain understanding. For building intuition and avoiding modeling errors.
 
 **FMCSA**  
 Federal Motor Carrier Safety Administration  
@@ -47,56 +26,52 @@ The U.S. regulatory body responsible for carrier and broker oversight.
 **USDOT Number**  
 A unique identifier for motor carriers used for safety and compliance tracking.
 
-**MC / Docket Number**  
+**Docket Number**  
 An operating authority identifier used for both carriers and brokers.
 
-While deep regulatory knowledge isn't required to build the automation, understanding these concepts helps build intuition and avoid modeling errors.
+## 3. Proposed Automated Solution
 
-## 5. Discovery & Clarifying Questions (Early Phase)
+### High-level approach
 
-### Business process understanding
+Build an automated monthly report in Excel that identifies:
 
-- How does the risk and compliance team currently check FMCSA authority status?
-- How often are checks performed today?
-- What triggers a manual check (new customer, transaction, periodic review)?
+- Motor carriers
+- Freight brokers
 
-Even if not required for automation, this helps:
+whose FMCSA operating authority revocations went into effect (using the effective date) in the previous month. Deliver in an email.
 
-- Identify pain points
-- Validate assumptions
-- Ensure the automated output aligns with real workflows
+**In simple terms:**  
+The process pulls data from official DOT/FMCSA APIs to identify carriers and brokers that had their authority revocations take effect in the previous month, writes that information to a nicely formatted Excel spreadsheet, and emails it to the business for review.
 
-## 7. Data Exploration & Validation 
+## 4. Data Sources
 
-**Explore the datasets manually:**
+### Primary Data Source
 
-- Browse records
-- Inspect fields
-- Understand how revocations are represented
-- Confirm date fields and status transitions
+**FMCSA Authority Revocations Dataset**  
+https://dev.socrata.com/foundry/data.transportation.gov/sa6p-acbp
 
-**Key questions:**
+This dataset contains **only revoked authorities** (all records have a revoked status). It provides complete historical records including:
 
-- ...
+- **Revocation type** - Distinguishes between voluntary, involuntary, and administrative revocations
+- **Revocation dates** - Serve date and effective date
+- **Entity identifiers** - USDOT number, MC/Docket number
+- **Operating authority registration type** - Type of authority that was revoked
 
-## 8. Technical Considerations
+### Optional Enrichment Source (Later Down the Road)
 
-### JSON parsing & transformation
+**FMCSA QCMobile API**  
+https://mobile.fmcsa.dot.gov/QCDevsite/
 
-Which tool is best suited for parsing and transforming the API responses?
+Can be used to enrich revocation records (joined on the USDOT number) with additional carrier information:
 
-- Python
-- Low-code / No-code tools
+- Legal business names
+- DBA (Doing Business As) names
+- Additional company details
 
-Before choosing tooling:
+### Parent Portal
 
-- Manually browse sample payloads
-- Understand nested structures
-- Identify edge cases
+**Transportation.gov Open Data**  
+https://data.transportation.gov/
 
-## 9. Open Questions for Q&A / Interview Discussion
+The official U.S. Department of Transportation open data portal hosting all DOT-related datasets.
 
-- Which low-code or no-code tools does the team currently use?
-- What subscriptions or platforms are already in place?
-- Where does automation typically live today (custom code vs platforms)?
-- How are outputs consumed (dashboard, alerts, tickets, reports)?

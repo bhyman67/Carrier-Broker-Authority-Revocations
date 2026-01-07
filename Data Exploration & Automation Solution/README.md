@@ -1,10 +1,10 @@
-# Data Exploration, API Inspection, & Automation Solutions
+# Carrier & Broker Authority Revocations - Automated Solution
 
 ## Overview
 
-This directory contains scripts for exploring and automating data retrieval from the FMCSA Carrier & Broker Authority Revocations API. The primary deliverable is an automated Python script that generates monthly Excel reports of authority revocations.
+This directory contains scripts, exploration, and options for automating data retrieval and delivery of the FMCSA Carrier & Broker Authority Revocations. The primary deliverable is an automated Python script that generates monthly Excel reports of authority revocations.
 
-## Files
+## Script Files
 
 ### Python Script
 - **`Carrier & Broker Authority Revocations – Generate Monthly Report.py`** - Automated monthly report generator using the `requests` library
@@ -51,13 +51,15 @@ The script will generate `Generated Report.xlsx` in the parent directory contain
 
 **Endpoint:** https://data.transportation.gov/resource/sa6p-acbp.json
 
+**Note:** For authentication and rate limiting details, as well as the differences between the legacy view API and SODA API, see [API Token Usage Notes](API%20Token%20Usage%20Notes.md).
+
 **Fields Retrieved:**
-- `dot_number` - DOT Number
+- `dot_number` - USDOT Number
 - `docket_number` - Docket Number
-- `order2_type_desc` - Revocation Type Description
-- `type_license` - License Type
-- `order1_serve_date` - Date revocation notice was served
-- `order2_effective_date` - Date revocation takes effect
+- `order2_type_desc` - Revocation Type
+- `type_license` - Operating Authority Registration Type
+- `order1_serve_date` - Serve Date
+- `order2_effective_date` - Effective Date
 
 **Date Fields Explained:**
 - **Serve Date (`order1_serve_date`):** The date when the revocation notice/order was officially served/delivered to the carrier or broker. This is when they were notified that their authority would be revoked.
@@ -122,12 +124,7 @@ workbook Generated Report.xlsx (for now) and save it to the parent directory.
 
 **Why `requests` over `sodapy`?**
 
-After initial development with `sodapy`, we switched to the `requests` library for several reasons:
-1. **Better transparency** - Easy to see exactly what's being sent to the API
-2. **Easier debugging** - Direct access to URLs, headers, and response details
-3. **Fewer dependencies** - `requests` is more universally available
-4. **More control** - Better error handling and response inspection
-5. **Simpler for this use case** - We only need basic GET requests with query parameters
+After initial development with `sodapy`, we switched to `requests` for better transparency and easier debugging.
 
 **Date Filtering Challenge:**
 
@@ -138,6 +135,39 @@ where_condition = f"order2_effective_date LIKE '{mm}/%/{yyyy}'"
 
 This approach was more reliable than using date range comparisons with various ISO formats.
 
-## Additional Resources
+## Alternative Low-Code/No-Code Approach: Zapier Exploration
 
-FMCSA Query and Complaint System: https://mobile.fmcsa.dot.gov/QCDevsite/
+### Initial Zapier Attempt
+
+Before developing the Python solution, I explored building this automation in Zapier to leverage its built-in scheduling and email capabilities.
+
+![Zapier Workflow](./zapier-workflow.png)
+
+**Workflow Steps:**
+1. **Receive Webhook Request** - Trigger the automation (can be changed to a schedule trigger for automated monthly runs)
+2. **Set First/Last Day Prev Month Vars** - Calculate date range using Code by Zapier (currently limited to a small data sample to avoid pagination and excessive task usage)
+3. **Call the Revocation (All Hist) API** - Retrieve data via Webhooks by Zapier
+4. **Add Row(s)** - Write to Microsoft Excel (requires an existing Excel spreadsheet in OneDrive that the Zap connects to)
+5. **Send Outbound Email** - Distribute a link to the shared Excel document
+
+### Findings
+
+**Pros:**
+- Built-in scheduling functionality
+- Easy email automation and distribution
+- No-code/low-code approach accessible to non-developers
+
+**Cons (Pain Points):**
+- **API Pagination** - Difficult to handle iterative API calls for large datasets
+- **Excel Formatting** - Limited control over Excel table formatting and styling
+- **Task Usage** - High task consumption when writing rows to Excel for large datasets
+- **Overall Complexity** - More restrictive than expected, though technically doable
+
+### Hybrid Approach Potential
+
+A promising compromise could be:
+- Use **Python** for data extraction, transformation, and Excel generation
+- Embed Python code in a **Zapier Function** (provides more control over the Python environment and supports 3rd party modules like pandas, requests, openpyxl - unlike Code by Zapier)
+- Leverage **Zapier** for scheduling and automated email delivery
+
+This would combine Python's flexibility with Zapier's automation infrastructure.
